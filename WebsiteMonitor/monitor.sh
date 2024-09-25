@@ -9,16 +9,30 @@ NC='\033[0m'
 
 function spacer { echo '--------------------------' ; }
 
+function getPHPVersion {
+    phpVersion=$(php -v  | grep -Eo '[7-9]\.[0-9].[0-9][0-9]' | uniq)
+    if [[ -n $(grep '8.1' <<< $phpVersion) ]]; then
+        echo -e "PHP Version: ${G}$phpVersion${NC}"
+    else
+        echo -e "PHP Version: ${Y}$phpVersion${NC}"
+    fi
+}
+
+function getInstanceType {
+    instanceType=$(ec2metadata | grep 'instance-type' | awk '{print $2}')
+    echo -e "Instance type: ${G}$instanceType${NC}"
+}
+
 function getGenVersion {
     releaseNumber=$(lsb_release -sr 2>/dev/null | cut -d '.' -f1)
     case $releaseNumber in
 
         24)
-        echo -e "${G}Gen4 Instance${NC}"
+        echo -e "Instance gen: ${G}Gen4${NC}"
         ;;
 
         20)
-        echo -e "${Y}Gen3 Instance${NC}"
+        echo -e "Instance gen: ${Y}Gen3${NC}"
         ;;
 
     esac
@@ -60,11 +74,17 @@ function verifyWebsite  {
 }
 
 echo ""
+getPHPVersion
+spacer
+getInstanceType
+spacer
 getGenVersion
 spacer
 
 targetWebsite=$(getActiveWebsite)
 echo -e "Found website: ${B}$targetWebsite${NC}. Verifying if it is accessible from the current server..."
 verifyWebsite $targetWebsite
+spacer
+echo -e "Preview url: ${Y}https://$targetWebsite/pagely/status/${NC}"
 echo ""
 
