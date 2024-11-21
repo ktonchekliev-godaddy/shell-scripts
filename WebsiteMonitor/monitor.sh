@@ -18,6 +18,15 @@ function getPHPVersion {
     fi
 }
 
+function getNodeVersion {
+    nodeVersion=$(sudo find /home/*/ -name "versions" -type d -print0 | sudo xargs -0 -I {} ls {}/node | sort -n | uniq)
+    if [[ -n $nodeVersion ]]; then
+        echo -e "Node version: ${G}$nodeVersion${NC}"
+    else
+        echo -e "Node version: ${R}None${NC}"
+    fi
+}
+
 function getInstanceType {
     instanceType=$(ec2metadata | grep 'instance-type' | awk '{print $2}')
     echo -e "Instance type: ${G}$instanceType${NC}"
@@ -75,6 +84,8 @@ function verifyWebsite  {
 
 echo ""
 getPHPVersion
+spacer
+getNodeVersion
 spacer
 getInstanceType
 spacer
